@@ -3,3 +3,36 @@ Examples for some financal packages
 
 Here are some examples about the packages applied in financal 
 
+金融数据读取
+----------------
+package：fImport，quantmod  
+对于fImport，可以从research.stlouisfed.org，www.oanda.com，chart.yahoo.com下载金融数据，可以分别返回Timesereses和fwebdata类型的数据  
+```{r}
+require(fImport)
+X <- yahooSeries("AAPL")     #从yahoo下载苹果股价指数，返回的是timeserises类型
+str(X)                       #timesereise类型是什么？
+```
+数据类型
+---------------
+package：timeseries，zoo   
+主要是提供不同数据类型的一些基本处理方法
+```{r}
+library(timeSeries)
+by <- timeSequence(from = start(X), to = end(X), by = "week")
+aggregate(X, by, mean)   #每周的平均值
+AAPL.Open<-X[,"AAPL.Open"]
+AAPL.Open<-as.ts(AAPL.Open)
+acf(diff(AAPL.Open))
+y<-diff(AAPL.Open)
+y=y-mean(y) # de-mean (set mean to zero)
+library(fGarch)
+garchFit (~ garch(1,0), data = y,include.mean=FALSE)
+garchFit (~ garch(4,0), data = y,include.mean=FALSE)
+garchFit (~ garch(4,1), data = y,include.mean=FALSE)
+garchFit (~ garch(1,1), data = y,include.mean=FALSE)
+garchFit (~ garch(1,1), data = y,include.mean=FALSE,cond.dist="std",trace=F)
+res=garchFit (~ garch(1,1), data =y,include.mean=FALSE,cond.dist="sstd",trace=F)# saves output to res
+plot(res) # shows various graphical analysis
+```
+
+
